@@ -1,19 +1,21 @@
 #include "ch.h"
 #include "hal.h"
 #include "scheduler.h"
+#include "zdroj.h"
 #include "zConverter.h"
 #include "zAD.h"
+#include "zDA.h"
+
+//#pragma GCC push_options
+//#pragma GCC optimize ("O0")
 
 void blik(void * arg)
 {
 	(void) arg;
-
-
 	palTogglePort(GPIOC,(1 << 13) | (1 << 14) | (1 <<15));
 
-	uint16_t vol = 150;
-	conSetValue(vol);
-	uint16_t mereno = conGetVoltage();
+	uint16_t i = 500;
+	daSetVoltage(2,i);
 }
 
 delay_t blikej;
@@ -30,8 +32,7 @@ int main(void)
 	shFillStruct(&blikej, blik, NULL, (200), PERIODIC);
 	shRegisterStruct(&blikej);
 
-	conInit();
-	adInit();
+	zdrInit();
 
 	while (TRUE)
 	{
@@ -39,6 +40,8 @@ int main(void)
 		chThdSleepMilliseconds(1);
 	}
 }
+
+//#pragma GCC push_options
 
 #ifdef __cplusplus
 void* operator new(size_t sz)

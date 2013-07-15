@@ -8,6 +8,7 @@
 #ifndef ZDA_H_
 #define ZDA_H_
 
-void daSetNeco(void);
+void daInit(void);
+void daSetVoltage(uint8_t channel, uint16_t mv);
 
 #endif /* ZDA_H_ */

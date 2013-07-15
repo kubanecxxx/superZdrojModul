@@ -9,6 +9,13 @@
 #include "ch.h"
 #include "hal.h"
 
+/**
+ * @ingroup zdroj
+ * @defgroup AD
+ * @brief AD převodnik pro měření výstupních napětí
+ * @{
+ */
+
 static void adccb(ADCDriver *adcp, adcsample_t *buffer, size_t n);
 /* Total number of channels to be sampled by a single ADC operation.*/
 #define ADC_GRP1_NUM_CHANNELS  (4 + 1)
@@ -48,11 +55,9 @@ adccb, /*
  */
 0, /*
  * CR2
- */ADC_CR2_TSVREFE,
-/*
+ */ADC_CR2_TSVREFE, /*
  * smpr1
- */
-ADC_SMPR1_SMP_VREF(SAMPLE_TIME), /*
+ */ADC_SMPR1_SMP_VREF(SAMPLE_TIME), /*
  * smpr2
  */ADC_SMPR2_SMP_AN0(SAMPLE_TIME) | ADC_SMPR2_SMP_AN1(SAMPLE_TIME)
 		| ADC_SMPR2_SMP_AN2(SAMPLE_TIME) | ADC_SMPR2_SMP_AN3(SAMPLE_TIME), /*
@@ -62,7 +67,8 @@ ADC_SMPR1_SMP_VREF(SAMPLE_TIME), /*
  */0, /*
  * sqr3
  */ADC_SQR3_SQ1_N(ADC_CHANNEL_IN0) | ADC_SQR3_SQ2_N(ADC_CHANNEL_IN1)
-		| ADC_SQR3_SQ3_N(ADC_CHANNEL_IN2) | ADC_SQR3_SQ4_N(ADC_CHANNEL_IN3) | ADC_SQR3_SQ5_N(ADC_CHANNEL_VREFINT) };
+		| ADC_SQR3_SQ3_N(ADC_CHANNEL_IN2) | ADC_SQR3_SQ4_N(ADC_CHANNEL_IN3)
+		| ADC_SQR3_SQ5_N(ADC_CHANNEL_VREFINT) };
 
 //#pragma GCC push_options
 //#pragma GCC optimize ("O2")
@@ -109,17 +115,14 @@ void adccb(ADCDriver *adcp, adcsample_t *buffer, size_t n)
 	if (adcp->state != ADC_COMPLETE)
 		return;
 
-
 	int i;
-	for(i = 0 ;  i < 4 ;i ++)
+	for (i = 0; i < 4; i++)
 	{
 		buf[i] = buffer[i] * 1200 / buffer[4];
 	}
 
-
 	conAdcData = buf[0]; //napěti za měničem
 	/// todo dalši napěti pro opa
-
 	chSysLockFromIsr();
 	if (!chVTIsArmedI(&vt))
 		chVTSetI(&vt, MS2ST(50), vtcb, NULL);
@@ -128,4 +131,7 @@ void adccb(ADCDriver *adcp, adcsample_t *buffer, size_t n)
 
 //#pragma GCC pop_options
 
+/**
+ * @}
+ */
 

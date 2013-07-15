@@ -5,3 +5,14 @@
  *
  */
 
+/**
+ * @ingroup zdroj
+ * @defgroup opa
+ * @brief API pro ovládání OPA548 interním DA převodníkem
+ * @{
+ */
+
+
+/*
+ * @}
+ */

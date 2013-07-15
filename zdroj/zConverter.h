@@ -8,7 +8,7 @@
 #ifndef ZCONVERTER_H_
 #define ZCONVERTER_H_
 
-bool_t conSetValue(uint16_t voltage);
+bool_t conSetVoltage(uint16_t voltage);
 uint16_t conGetVoltage(void);
 void conInit(void);
 

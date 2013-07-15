@@ -24,7 +24,9 @@ static const SPIConfig ls_spicfg =
 uint16_t conAdcData = 0;
 
 /**
- * @defgroup Měnič s SPI DA převodníkem
+ * @ingroup zdroj
+ * @defgroup měnič
+ * @brief měnič pro předregulaci napětí
  * @{
  */
 
@@ -32,7 +34,7 @@ uint16_t conAdcData = 0;
  * @brief nastavit vystupní napětí na výstupu měniče
  * posílá se hodnota 10x větší než se má ve skutečnosti nastavit
  */
-bool_t conSetValue(uint16_t voltage)
+bool_t conSetVoltage(uint16_t voltage)
 {
 	uint8_t txbuf[2];
 	uint8_t rxbuf[2];
