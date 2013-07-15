@@ -32,8 +32,16 @@
 #ifndef _CHCONF_H_
 #define _CHCONF_H_
 
-#define CORTEX_ENABLE_WFI_IDLE TRUE
+//#define CORTEX_ENABLE_WFI_IDLE TRUE
+#define DEBUG
 
+/*===========================================================================*/
+/**
+ * @brief špecialni přepočty
+ */
+/*===========================================================================*/
+#define DELIC(r1,r2,u) ((r2* u)/(r2+r1) )
+#define ODDELIC(r1,r2,u) (((r1+r2)* u) /r2)
 /*===========================================================================*/
 /**
  * @name Kernel parameters and options
@@ -134,7 +142,7 @@
  * @note    The default is @p TRUE.
  */
 #if !defined(CH_USE_REGISTRY) || defined(__DOXYGEN__)
-#define CH_USE_REGISTRY                 FALSE
+#define CH_USE_REGISTRY                 TRUE
 #endif
 
 /**
@@ -501,7 +509,6 @@
 #if !defined(IDLE_LOOP_HOOK) || defined(__DOXYGEN__)
 #define IDLE_LOOP_HOOK() {                                                  \
   /* Idle loop code here.*/                                                 \
-  asm("nop"); \
 }
 #endif
 

@@ -71,21 +71,22 @@ include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS)/os/ports/GCC/ARMCMx/STM32F1xx/port.mk
 include $(CHIBIOS)/os/kernel/kernel.mk
 
-DELAY_CLASS = delay
-#include delay/del.mk
+#DELAY_CLASS = delay_class
+#include delay_class/del.mk
 
 #include $(CHIBIOS)/stm32f4_drivers/drivers.mk
 
 # Define linker script file here
-LDSCRIPT= STM32F101C8T6.ld
+LDSCRIPT= STM32F10068.ld
 #LDSCRIPT= STM32F407xG.ld
 #LDSCRIPT= $(PORTLD)/STM32F407xG_CCM.ld
 
 # krida setup 
-CPPFILES = $(wildcard *.cpp) $(wildcard */*.cpp) 
-CFILES = $(wildcard *.c) $(wildcard */*.c) 
+CPPFILES = $(wildcard *.cpp) #$(wildcard */*.cpp)  
+CFILES = $(wildcard *.c) $(wildcard scheduler/*.c) $(wildcard port/*.c)#$(wildcard */*.c) 
+CFILES += $(wildcard zdroj/*.c)	 
 
-INCDIR += 
+INCDIR += scheduler port zdroj
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -94,7 +95,8 @@ CSRC += $(PORTSRC) \
        $(TESTSRC) \
        $(HALSRC) \
        $(PLATFORMSRC) \
-       $(CFILES) 
+       $(CFILES) \
+       $(BOARDSRC)
       
 CSRC += 
 
