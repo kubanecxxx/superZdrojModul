@@ -8,6 +8,13 @@
 #ifndef ZOPA_H_
 #define ZOPA_H_
 
-void opaNevim(void);
+void opaInit(void);
+void opaSetVoltage(uint16_t mV);
+void opaSetCurrent(uint16_t mA);
+uint16_t opaGetOutputVoltage(void);
+uint16_t opaGetOutputCurrent(void);
+void opaSetEnabled(bool_t enabled);
+void opaSetDisabled(bool_t disabled);
+bool_t opaIsThermalFailure(void);
 
 #endif /* ZOPA_H_ */

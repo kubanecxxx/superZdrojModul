@@ -26,9 +26,13 @@ void daInit(void)
 	RCC->APB1ENR |= RCC_APB1ENR_DACEN;
 	DAC->CR |= DAC_CR_TSEL2_0 | DAC_CR_TSEL2_1 | DAC_CR_TSEL2_2;
 	DAC->CR |= DAC_CR_TSEL1_0 | DAC_CR_TSEL1_1 | DAC_CR_TSEL1_2;
+	DAC->CR |= DAC_CR_BOFF1 | DAC_CR_BOFF2;
 	DAC->CR |= DAC_CR_EN1 | DAC_CR_EN2;
 
+#if 0
 	daSetVoltage(2,500);
+	daSetVoltage(1,800);
+#endif
 }
 
 /**
@@ -36,14 +40,12 @@ void daInit(void)
  */
 void daSetVoltage(uint8_t channel, uint16_t mv)
 {
-	//napětí = VREF * data/4095
 	uint32_t data;
 
 	if (channel > 2)
 		return;
 
-	data = (uint32_t) 1200L * mv / 4095;
-	data /= 1000;
+	data = (uint32_t)  (mv *  1221) / 1000;
 	if (channel == 1)
 	{
 		DAC->DHR12R1 = data;

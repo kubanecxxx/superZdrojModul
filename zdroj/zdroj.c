@@ -8,7 +8,6 @@
 #include "ch.h"
 #include "hal.h"
 #include "zdroj.h"
-#include "zDA.h"
 #include "zAD.h"
 #include "zOpa.h"
 #include "zConverter.h"
@@ -25,9 +24,8 @@
 void zdrInit(void)
 {
 	conInit();
-	daInit();
 	adInit();
-
+	opaInit();
 
 	conSetVoltage(150);
 }
@@ -39,6 +37,51 @@ void zdrInit(void)
 uint16_t zdrGetVoltageConverter(void)
 {
 	return conGetVoltage();
+}
+
+/**
+ * @brief funkce vrací hodnotu napětí na výstupu zdroje
+ * @return  napětí v mV
+ */
+uint16_t zdrGetCurrent(void)
+{
+	return opaGetOutputCurrent();
+}
+
+/**
+ * @brief funkce vrací hodnotu hodnotu proudu do zátěže
+ * @return  proud v mA
+ */
+uint16_t zdrGetVoltage(void)
+{
+	return opaGetOutputVoltage();
+}
+
+/**
+ * @brief funkce připojí výstupní napětí k výstupním svorkám
+ */
+void zdrSetEnabled(bool_t enable)
+{
+	opaSetEnabled(enable);
+}
+
+/**
+ * @brief funkce odpojí výstupní napětí od výstupních svorek
+ */
+void zdrSetDisabled(bool_t disable)
+{
+	opaSetDisabled(disable);
+}
+
+/**
+ * @brief funkce na zjištění přehřátí zdroje
+ * @return
+ *  + TRUE pokud je přehřáto
+ *  + FALSE pokud je v pořádku
+ */
+bool_t zdrIsThermalFailure(void)
+{
+	return opaIsThermalFailure();
 }
 
 /*

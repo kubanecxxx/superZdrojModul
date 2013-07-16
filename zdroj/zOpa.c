@@ -5,6 +5,11 @@
  *
  */
 
+#include "ch.h"
+#include "hal.h"
+#include "zOpa.h"
+#include "zDA.h"
+
 /**
  * @ingroup zdroj
  * @defgroup opa
@@ -12,6 +17,13 @@
  * @{
  */
 
+/**
+ * @brief inicializace zdroje OPA + init DA převodníků
+ */
+void opaInit(void)
+{
+	daInit();
+}
 
 /*
  * @}
