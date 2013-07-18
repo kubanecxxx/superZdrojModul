@@ -1,18 +1,30 @@
 #include "ch.h"
 #include "hal.h"
 #include "scheduler.h"
-//#include "zdroj.h"
-//#include "zConverter.h"
-//#include "zAD.h"
-//#include "zDA.h"
+#include "zdroj.h"
 
 //#pragma GCC push_options
 //#pragma GCC optimize ("O0")
+
+uint16_t mv = 10000;
+uint16_t ma = 500;
+bool_t en = TRUE;
+uint16_t mereni;
+bool_t boleny;
 
 void blik(void * arg)
 {
 	(void) arg;
 	palTogglePort(GPIOC,(1 << 13) | (1 << 14) | (1 <<15));
+
+	zdrSetEnabled(en);
+	zdrSetVoltage(mv);
+	zdrSetCurrentLimit(ma);
+	mereni = zdrGetCurrent();
+	mereni = zdrGetVoltage();
+	mereni = zdrGetVoltageConverter();
+	boleny = zdrIsOutputEnabled();
+	boleny = zdrIsThermalFailure();
 }
 
 delay_t blikej;
@@ -29,10 +41,13 @@ int main(void)
 	shFillStruct(&blikej, blik, NULL, (200), PERIODIC);
 	shRegisterStruct(&blikej);
 
+	zdrInit();
+
 	while (TRUE)
 	{
 		shPlay();
 		chThdSleepMilliseconds(1);
+		zdrProcessData();
 	}
 }
 

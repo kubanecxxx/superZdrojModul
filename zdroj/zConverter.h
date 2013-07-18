@@ -8,6 +8,8 @@
 #ifndef ZCONVERTER_H_
 #define ZCONVERTER_H_
 
+#include "zlock.h"
+
 bool_t conSetVoltage(uint16_t voltage);
 uint16_t conGetVoltage(void);
 void conInit(void);

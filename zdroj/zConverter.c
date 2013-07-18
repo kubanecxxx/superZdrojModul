@@ -5,8 +5,11 @@
  *
  */
 
+#define _ZDROJ_SUBMODULES
+
 #include "ch.h"
 #include "hal.h"
+#include "zConverter.h"
 
 #define LDAC_PORT GPIOA
 #define LDAC_PIN 15

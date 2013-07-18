@@ -8,6 +8,8 @@
 #ifndef ZDA_H_
 #define ZDA_H_
 
+#include "zlock.h"
+
 void daInit(void);
 void daSetVoltage(uint8_t channel, uint16_t mv);
 

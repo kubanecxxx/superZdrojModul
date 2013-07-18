@@ -8,7 +8,10 @@
 #ifndef ZAD_H_
 #define ZAD_H_
 
+#include "zlock.h"
+
 //asi žádny api
 void adInit(void);
+void adProcessData(void);
 
 #endif /* ZAD_H_ */

@@ -5,6 +5,8 @@
  *
  */
 
+#define _ZDROJ_SUBMODULES
+
 #include "ch.h"
 #include "hal.h"
 #include "zDA.h"

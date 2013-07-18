@@ -5,9 +5,13 @@
  *
  */
 
+#define _ZDROJ_SUBMODULES
+
 #include "zAD.h"
 #include "ch.h"
 #include "hal.h"
+#include <string.h>
+#include "ringBuffer.h"
 
 /**
  * @ingroup zdroj
@@ -21,7 +25,7 @@ static void adccb(ADCDriver *adcp, adcsample_t *buffer, size_t n);
 #define ADC_GRP1_NUM_CHANNELS  (4 + 1)
 
 /* Depth of the conversion buffer, channels are sampled four times each.*/
-#define ADC_GRP1_BUF_DEPTH      2
+#define ADC_GRP1_BUF_DEPTH      20
 
 /*
  * ADC samples buffer.
@@ -88,45 +92,94 @@ void adInit(void)
 	chVTSet(&vt,MS2ST(50),vtcb,NULL);
 }
 
+static bool_t buffer_full = FALSE;
+
 /**
  * @brief callback od virtuálního timeru dycky jenom spustí další adcpřevod
+ *
+ * nechá ukládat data o kousek dál do bufferu, až bude buffer plné
+ * tak data nechá schroustat a zase začne ukládat od začátku
  */
 void vtcb(void * arg)
 {
 	(void) arg;
+	static uint16_t * ptr = bufer;
 
 	chSysLockFromIsr();
-	adcStartConversionI(&ADCD1, &adcgrpcfg, bufer, ADC_GRP1_BUF_DEPTH);
+	adcStartConversionI(&ADCD1, &adcgrpcfg, ptr, 2);
 	chSysUnlockFromIsr();
+
+	//pokaždy si inkrementuje pointer
+	//až je buffer plnej tak to vrátí na začátek a řekne to někomu
+	ptr += ADC_GRP1_NUM_CHANNELS * 2;
+	if (ptr == bufer + ADC_GRP1_NUM_CHANNELS * ADC_GRP1_BUF_DEPTH)
+	{
+		ptr = bufer;
+		buffer_full = TRUE;
+	}
 }
 
 extern uint16_t conAdcData;
+extern uint16_t _adNapeti;
+extern uint16_t _adProud1, _adProud2;
 
 /**
  * @brief callback od hotovyho adc převodu, jenom znova nahodi virtualni timer
  * na dalši spuštění převodu
- * a nahází změřeny data do přislušnéch proměnnéch od modulů
  */
 void adccb(ADCDriver *adcp, adcsample_t *buffer, size_t n)
 {
 	(void) n;
-	uint16_t buf[4];
+	(void) buffer;
 
 	if (adcp->state != ADC_COMPLETE)
 		return;
 
-	int i;
-	for (i = 0; i < 4; i++)
+	chSysLockFromIsr();
+	if (!chVTIsArmedI(&vt) && buffer_full == FALSE)
+		chVTSetI(&vt, MS2ST(10), vtcb, NULL);
+	chSysUnlockFromIsr();
+}
+
+/**
+ * @brief zchroustá data z AD převodníku
+ *
+ * 10 dvouvzorků po 10ms => každéch 100ms zpruměruje vzorky
+ *
+ */
+void adProcessData(void)
+{
+	uint16_t buf[ADC_GRP1_NUM_CHANNELS];
+	memset(buf, 0, sizeof(buf));
+
+	if (buffer_full == FALSE)
+		return;
+
+	buffer_full = FALSE;
+
+	if (!chVTIsArmedI(&vt))
+		chVTSet(&vt, MS2ST(10), vtcb, NULL);
+
+	int j, i;
+	for (i = 0; i < ADC_GRP1_NUM_CHANNELS; i++)
 	{
-		buf[i] = buffer[i] * 1200 / buffer[4];
+		for (j = 0; j < ADC_GRP1_BUF_DEPTH; j++)
+		{
+			buf[i] += bufer[i + j * ADC_GRP1_NUM_CHANNELS];
+		}
+		buf[i] /= ADC_GRP1_BUF_DEPTH;
+
 	}
 
-	conAdcData = buf[0]; //napěti za měničem
-	/// todo dalši napěti pro opa
-	chSysLockFromIsr();
-	if (!chVTIsArmedI(&vt))
-		chVTSetI(&vt, MS2ST(50), vtcb, NULL);
-	chSysUnlockFromIsr();
+	for (i = 0; i < 4; i++)
+	{
+		buf[i] = buf[i] * 1200 / buf[4];
+	}
+
+	 conAdcData = buf[0]; //napěti za měničem
+	 _adProud2 = buf[1];
+	 _adProud1 = buf[2];
+	 _adNapeti = buf[3];
 }
 
 //#pragma GCC pop_options

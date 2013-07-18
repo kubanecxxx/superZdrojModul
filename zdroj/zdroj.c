@@ -5,6 +5,8 @@
  *
  */
 
+#define _ZDROJ_SUBMODULES
+
 #include "ch.h"
 #include "hal.h"
 #include "zdroj.h"
@@ -28,6 +30,36 @@ void zdrInit(void)
 	opaInit();
 
 	conSetVoltage(150);
+}
+
+/**
+ * @brief nastaví výstupní napětí zdroje
+ * @param[in] výstupní napětí v mV
+ *
+ * zároveň si poladi předměnič
+ */
+void zdrSetVoltage(uint16_t mV)
+{
+	uint16_t menic;
+
+	//napětí o pět voltů víc poleze z měniče
+	//minimálně aspon 10V
+	menic = mV + 5000;
+	if (menic < 10000)
+		menic = 10000;
+
+	conSetVoltage(menic / 100);
+
+	opaSetVoltage(mV);
+}
+
+/**
+ * @brief nastaví proudovy omezeni zdroje
+ * @param[in] proudové omezení v mA
+ */
+void zdrSetCurrentLimit(uint16_t mA)
+{
+	opaSetCurrent(mA);
 }
 
 /**
@@ -82,6 +114,25 @@ void zdrSetDisabled(bool_t disable)
 bool_t zdrIsThermalFailure(void)
 {
 	return opaIsThermalFailure();
+}
+
+/**
+ * @brief funkce na zjištění stavu výstupu zdroje
+ * @return
+ *  + TRUE pokud je výstup aktivní
+ *  + FALSE pokud je výstup vypnutý
+ */
+bool_t zdrIsOutputEnabled(void)
+{
+	return opaIsEnabled();
+}
+
+/**
+ * @brief funkce schroustá data v bufferu od AD převodníku
+ */
+void zdrProcessData(void)
+{
+	adProcessData();
 }
 
 /*
