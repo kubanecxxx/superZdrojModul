@@ -11,17 +11,33 @@
 #include "hal.h"
 #include "zConverter.h"
 
-#define LDAC_PORT GPIOA
-#define LDAC_PIN 15
+#define LDAC_H() spi_high(LDAC)
+#define LDAC_L() spi_low(LDAC)
 
-#define LDAC_H() palSetPad(LDAC_PORT,LDAC_PIN)
-#define LDAC_L() palClearPad(LDAC_PORT,LDAC_PIN)
+#define spi_high(_pin) palSetPad(spi[_pin].gpio,spi[_pin].pin)
+#define spi_low(_pin) palClearPad(spi[_pin].gpio,spi[_pin].pin)
+#define spi_setMode(_pin,mode) palSetPadMode(spi[_pin].gpio,spi[_pin].pin,mode)
 
-#define CS_PORT GPIOB
-#define CS_PIN 4
+static uint16_t low_level_spi_in_out(uint16_t cmd);
 
-static const SPIConfig ls_spicfg =
-{ NULL, CS_PORT, CS_PIN, 0 };
+typedef enum
+{
+	MOSI, SCK, CS, LDAC
+} spi_t;
+
+typedef struct
+{
+	GPIO_TypeDef * gpio;
+	uint8_t pin;
+} spi_pin;
+
+static const spi_pin spi[] =
+{
+{ GPIOB, 7 }, //MOSI
+		{ GPIOB, 8 }, //SCK
+		{ GPIOB, 9 }, //CS
+		{ GPIOB, 6 } //LDAC
+};
 
 //napětí už bude v mV
 uint16_t conAdcData = 0;
@@ -39,8 +55,7 @@ uint16_t conAdcData = 0;
  */
 bool_t conSetVoltage(uint16_t voltage)
 {
-	uint8_t txbuf[2];
-	uint8_t rxbuf[2];
+	uint16_t ven;
 	uint32_t tisicU;
 	uint16_t data;
 
@@ -54,19 +69,46 @@ bool_t conSetVoltage(uint16_t voltage)
 	 * do DA převodniku
 	 */
 
-	tisicU = 1230 - ((voltage*35) / 10);
+	tisicU = 1230 - ((voltage * 35) / 10);
 	data = tisicU * 2;
-	txbuf[0] = data >> 8;
-	txbuf[1] = data & 0xff;
-	txbuf[0] |= 0b00110000;
+	/*
+	 txbuf[0] = data >> 8;
+	 txbuf[1] = data & 0xff;
+	 txbuf[0] |= 0b00110000;
+	 */
+	ven = data;
+	ven |= 0b00110000 << 8;
 
 	LDAC_H();
-	spiSelect(&SPID1);
-	spiExchange(&SPID1,2,txbuf,rxbuf);
-	spiUnselect(&SPID1);
+	low_level_spi_in_out(ven);
 	LDAC_L();
 
 	return TRUE;
+}
+
+/**
+ * @brief softwarovy spi
+ * 16bitů MSB first
+ */
+uint16_t low_level_spi_in_out(uint16_t cmd)
+{
+	uint8_t i;
+
+	spi_low(SCK);
+	spi_low(CS);
+	for (i = 0; i < 16; i++)
+	{
+		if (cmd & 0x8000)
+			spi_high(MOSI);
+		else
+			spi_low(MOSI);
+		spi_high(SCK);
+		cmd <<= 1;
+		spi_low(SCK);
+
+	}
+	spi_high(CS);
+	return 0;
 }
 
 /**
@@ -74,20 +116,20 @@ bool_t conSetVoltage(uint16_t voltage)
  */
 void conInit(void)
 {
+#if 0
 	//přemapování SPI1
 	RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;
 	AFIO->MAPR |= 1;
 	//odpojit JTAG kvuli PA15
 	AFIO->MAPR |= 0b010 << 24;
 	//mosi, sck
-	palSetGroupMode(GPIOB,0b101 , 3, PAL_MODE_STM32_ALTERNATE_PUSHPULL);
-	//cs
-	palSetPadMode(CS_PORT,CS_PIN,PAL_MODE_OUTPUT_PUSHPULL);
-	//ldac
-	palSetPadMode(LDAC_PORT,LDAC_PIN,PAL_MODE_OUTPUT_PUSHPULL);
+#endif
 
-	spiStart(&SPID1, &ls_spicfg);
-	spiUnselect(&SPID1);
+	//low level init
+	spi_setMode(MOSI,PAL_MODE_OUTPUT_PUSHPULL);
+	spi_setMode(SCK,PAL_MODE_OUTPUT_PUSHPULL);
+	spi_setMode(LDAC,PAL_MODE_OUTPUT_PUSHPULL);
+	spi_setMode(CS,PAL_MODE_OUTPUT_PUSHPULL);
 }
 
 #define R2	1200

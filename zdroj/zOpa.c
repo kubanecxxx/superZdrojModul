@@ -31,7 +31,7 @@ uint16_t _adNapeti, _adProud1, _adProud2;
  */
 typedef enum
 {
-	CURRENT = 1, VOLTAGE = 2
+	CURRENT = 2, VOLTAGE = 1
 } DAChannel_t;
 
 #define ES_GPIO GPIOA
