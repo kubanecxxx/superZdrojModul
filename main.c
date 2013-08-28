@@ -49,6 +49,8 @@ int main(void)
 		chThdSleepMilliseconds(1);
 		zdrProcessData();
 	}
+
+	return 1;
 }
 
 //#pragma GCC push_options
