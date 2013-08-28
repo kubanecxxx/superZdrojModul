@@ -30,7 +30,6 @@ void daInit(void)
 	DAC->CR |= DAC_CR_TSEL1_0 | DAC_CR_TSEL1_1 | DAC_CR_TSEL1_2;
 	DAC->CR |= DAC_CR_BOFF1 | DAC_CR_BOFF2;
 	DAC->CR |= DAC_CR_EN1 | DAC_CR_EN2;
-
 #if 0
 	daSetVoltage(2,500);
 	daSetVoltage(1,800);
