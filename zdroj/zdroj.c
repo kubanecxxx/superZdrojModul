@@ -13,6 +13,7 @@
 #include "zAD.h"
 #include "zOpa.h"
 #include "zConverter.h"
+#include "zLimit.h"
 
 /**
  * @defgroup zdroj
@@ -22,12 +23,17 @@
 
 /**
  * @brief nastavení celyho zdroje
+ *
+ * @details defaultní výstupní hodnoty
+ *  + output voltage 150mV
+ *  + output disabled
  */
 void zdrInit(void)
 {
 	conInit();
 	adInit();
 	opaInit();
+	zLimInit();
 
 	conSetVoltage(150);
 }
@@ -133,6 +139,11 @@ bool_t zdrIsOutputEnabled(void)
 void zdrProcessData(void)
 {
 	adProcessData();
+}
+
+bool_t zdrIsCurrentLimited(void)
+{
+	return zLimIsCurrentLimited();
 }
 
 /*

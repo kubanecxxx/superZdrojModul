@@ -35,6 +35,10 @@
 //#define CORTEX_ENABLE_WFI_IDLE TRUE
 #define DEBUG
 
+#ifdef DEBUG
+#define DEBUG_LED
+#endif
+
 /*===========================================================================*/
 /**
  * @brief špecialni přepočty

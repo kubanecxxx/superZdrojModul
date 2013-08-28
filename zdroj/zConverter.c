@@ -132,8 +132,7 @@ void conInit(void)
 	spi_setMode(CS,PAL_MODE_OUTPUT_PUSHPULL);
 }
 
-#define R2	1200
-#define R1	33000
+
 
 /**
  * @brief vrátí naměřeny napěti na vystupu měniče
@@ -142,7 +141,7 @@ void conInit(void)
 uint16_t conGetVoltage(void)
 {
 	//přepočitat adcdata děličem a vrátit
-	uint32_t temp = ODDELIC(R1,R2,conAdcData);
+	uint32_t temp = ODDELIC(zConstants.measConvVoltR1,zConstants.measConvVoltR2,conAdcData);
 
 	return temp;
 }

@@ -19,5 +19,6 @@ INLINE void zdrSetDisabled(bool_t disabled);
 INLINE bool_t zdrIsOutputEnabled(void);
 INLINE bool_t zdrIsThermalFailure(void);
 INLINE void zdrProcessData(void);
+INLINE bool_t zdrIsCurrentLimited(void);
 
 #endif /* ZDROJ_H_ */

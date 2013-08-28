@@ -19,5 +19,7 @@ void opaSetEnabled(bool_t enabled);
 INLINE void opaSetDisabled(bool_t disabled);
 bool_t opaIsThermalFailure(void);
 INLINE bool_t opaIsEnabled(void);
+INLINE uint16_t opaGetCurrentLimitSetup(void);
+INLINE uint16_t opaGetOutputVoltageSetup(void);
 
 #endif /* ZOPA_H_ */

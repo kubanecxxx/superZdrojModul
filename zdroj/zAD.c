@@ -121,7 +121,7 @@ void vtcb(void * arg)
 
 extern uint16_t conAdcData;
 extern uint16_t _adNapeti;
-extern uint16_t _adProud1, _adProud2;
+extern uint16_t _adProud1;
 
 /**
  * @brief callback od hotovyho adc převodu, jenom znova nahodi virtualni timer
@@ -149,7 +149,7 @@ void adccb(ADCDriver *adcp, adcsample_t *buffer, size_t n)
  */
 void adProcessData(void)
 {
-	uint16_t buf[ADC_GRP1_NUM_CHANNELS];
+	uint32_t buf[ADC_GRP1_NUM_CHANNELS];
 	memset(buf, 0, sizeof(buf));
 
 	if (buffer_full == FALSE)
@@ -177,7 +177,6 @@ void adProcessData(void)
 	}
 
 	 conAdcData = buf[0]; //napěti za měničem
-	 _adProud2 = buf[1];
 	 _adProud1 = buf[2];
 	 _adNapeti = buf[3];
 }

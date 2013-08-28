@@ -20,11 +20,13 @@
  */
 
 static bool_t enabled = FALSE;
+static uint16_t outputVoltage = 0;
+static uint16_t currentLimit = 0;
 
 /**
  * @brief proměnné pro nastavení od AD převodníku; uživatel nesmí používat
  */
-uint16_t _adNapeti, _adProud1, _adProud2;
+uint16_t _adNapeti, _adProud1;
 
 /**
  * @brief enum pro lepši rozpoznání kanálů DA převodniku
@@ -55,10 +57,9 @@ void opaInit(void)
 void opaSetVoltage(uint16_t mV)
 {
 	uint16_t temp;
-#define R6 10000
-#define R7 1000
+	outputVoltage = mV;
 
-	temp = mV / (R6 / R7 + 1); //mV / 11
+	temp = mV / (zConstants.opaVoltR2 / zConstants.opaVoltR1 + 1); //mV / 11
 	daSetVoltage(VOLTAGE, temp);
 }
 
@@ -73,6 +74,8 @@ void opaSetCurrent(uint16_t mA)
 {
 	//Vset = 4.75 - (13750*Ilim / 15000)
 	//1000Vset = 4750 - (13750 * Ilim / 15)
+
+	currentLimit = mA;
 
 	uint32_t temp = 13750L * mA;
 	uint32_t tme;
@@ -158,10 +161,7 @@ bool_t opaIsEnabled(void)
  */
 uint16_t opaGetOutputVoltage(void)
 {
-#define R1 33000
-#define R2 1200
-
-	return ODDELIC(R1,R2,_adNapeti);
+	return ODDELIC(zConstants.measOutVoltR1,zConstants.measOutVoltR2,_adNapeti);
 }
 
 /**
@@ -174,7 +174,26 @@ uint16_t opaGetOutputCurrent(void)
 	 * bude sranda dopočitat
 	 * bude lepši ladit až přimo na zátěži
 	 */
-	return 0;
+	//20V per 10A
+	uint16_t temp = _adProud1 * zConstants.measCurMul;
+	temp = temp / zConstants.measCurDiv;
+	return temp;
+}
+
+/**
+ * @brief vrátí hodnotu proudovyho limitu která byla předtim nastavena v mA
+ */
+uint16_t opaGetCurrentLimitSetup(void)
+{
+	return currentLimit;
+}
+
+/**
+ * @brief vrátí nastavenou hodnotu napětí v mV
+ */
+uint16_t opaGetOutputVoltageSetup(void)
+{
+	return outputVoltage;
 }
 
 /*

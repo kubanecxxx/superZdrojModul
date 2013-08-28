@@ -7,7 +7,7 @@
 //#pragma GCC optimize ("O0")
 
 uint16_t mv = 10000;
-uint16_t ma = 500;
+uint16_t ma = 100;
 bool_t en = TRUE;
 uint16_t mereni;
 bool_t boleny;
@@ -15,7 +15,7 @@ bool_t boleny;
 void blik(void * arg)
 {
 	(void) arg;
-	palTogglePort(GPIOC,(1 << 13) | (1 << 14) | (1 <<15));
+	palTogglePort(GPIOC,(1 << 13) | (1 << 14) );
 
 	zdrSetEnabled(en);
 	zdrSetVoltage(mv);
