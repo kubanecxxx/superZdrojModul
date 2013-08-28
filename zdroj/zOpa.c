@@ -78,15 +78,17 @@ void opaSetCurrent(uint16_t mA)
 	uint32_t tme;
 	uint32_t korigovano;
 	temp /= 15000;
-	temp = 4750 - temp;
-
+	temp = 4880 - temp;
+	//@todo 4750 hodit do konstant protože u druhyho bude asi jinak
 	//děleno dvěma protože na vystupu je zesilovač 2x
 	tme = temp / 2;
+	//tme += 50;
+	//@todo dalši konstanta
 	//zesilovač nemá přesně zesileni 2x
 	korigovano = tme * 10312;
 	korigovano /= 10000;
 
-	daSetVoltage(CURRENT, korigovano);
+	daSetVoltage(CURRENT, tme);
 }
 
 /**
