@@ -5,32 +5,59 @@
  *
  */
 
+/**
+ * @brief musí být na začátku před zlock.h jinak to vyhodí chybu
+ * at si to nemuže inludovat kdokoli
+ */
 #define _ZDROJ_SUBMODULES
 
 #include "ch.h"
 #include "hal.h"
 #include "zConverter.h"
 
+/**
+ * @ingroup zdroj
+ * @defgroup měnič
+ * @brief měnič pro předregulaci napětí
+ * @{
+ */
+
+/// nahodí LDAC externího DA převodníku pro přenesení hodnoty z latche na výstup
 #define LDAC_H() spi_high(LDAC)
+/// sundá LDAC externího DA převodníku
 #define LDAC_L() spi_low(LDAC)
 
+/// nahodí pin SPI z \ref spi_t
 #define spi_high(_pin) palSetPad(spi[_pin].gpio,spi[_pin].pin)
+/// sundá pin SPI z \ref spi_t
 #define spi_low(_pin) palClearPad(spi[_pin].gpio,spi[_pin].pin)
+/// nastaví režim pinu SPI z \ref spi_t
 #define spi_setMode(_pin,mode) palSetPadMode(spi[_pin].gpio,spi[_pin].pin,mode)
 
 static uint16_t low_level_spi_in_out(uint16_t cmd);
 
+/**
+ * @brief číslování pinů SW spi
+ */
 typedef enum
 {
 	MOSI, SCK, CS, LDAC
 } spi_t;
 
+/**
+ * @brief namapování pinů pro SW SPI
+ */
 typedef struct
 {
+	/// pointer gpio ktery to bude ovládat
 	GPIO_TypeDef * gpio;
+	/// čislo pinu
 	uint8_t pin;
 } spi_pin;
 
+/**
+ * namapování pinů pro SW SPI
+ */
 static const spi_pin spi[] =
 {
 { GPIOB, 7 }, //MOSI
@@ -39,15 +66,12 @@ static const spi_pin spi[] =
 		{ GPIOB, 6 } //LDAC
 };
 
-//napětí už bude v mV
+/**
+ * @brief proměnná pro měření napětí \ref AD
+ */
 uint16_t conAdcData = 0;
 
-/**
- * @ingroup zdroj
- * @defgroup měnič
- * @brief měnič pro předregulaci napětí
- * @{
- */
+
 
 /**
  * @brief nastavit vystupní napětí na výstupu měniče

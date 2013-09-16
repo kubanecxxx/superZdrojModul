@@ -19,24 +19,46 @@
  * @{
  */
 
+/**
+ * @brief paměť že je výstup zdroj zapnuté
+ */
 static bool_t enabled = FALSE;
+/**
+ * @brief latch výstupního napětí
+ */
 static uint16_t outputVoltage = 0;
+/**
+ * @brief latch výstupního proudu
+ */
 static uint16_t currentLimit = 0;
 
 /**
- * @brief proměnné pro nastavení od AD převodníku; uživatel nesmí používat
+ *	@brief
+ * proměnné pro nastavení od AD převodníku; uživatel nesmí používat;
+ * nastavováno v \ref AD
  */
-uint16_t _adNapeti, _adProud1;
+uint16_t _adNapeti;
+/**
+ *	@brief
+ * proměnné pro nastavení od AD převodníku; uživatel nesmí používat;
+ * nastavováno v \ref AD
+ */
+uint16_t _adProud1;
 
 /**
  * @brief enum pro lepši rozpoznání kanálů DA převodniku
  */
 typedef enum
 {
-	CURRENT = 2, VOLTAGE = 1
+	/// proud
+	CURRENT = 2,
+	/// napětí
+	VOLTAGE = 1
 } DAChannel_t;
 
+/// port ES - čtení thermal failure a ovládání výstupu
 #define ES_GPIO GPIOA
+/// pin ES
 #define ES_PIN 7
 
 /**
@@ -50,7 +72,7 @@ void opaInit(void)
 
 /**
  * @brief nastaví výstupní napětí OPA548
- * @param [in] napětí v mV
+ * @param [in] mV napětí v mV
  *
  * musí přepočítat výstupní napětí přes zesílení OPA na napětí kterym ho má krmit
  */
@@ -65,7 +87,7 @@ void opaSetVoltage(uint16_t mV)
 
 /**
  * @brief nastaví proudovou pojistku OPA548
- * @param [in] maximální proud v mA
+ * @param [in] mA maximální proud v mA
  *
  * musí přepočítat pojistku na napěti kterym ho má krmit
  * na výstupu DA je ještě zesilovač 2x

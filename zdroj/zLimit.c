@@ -29,10 +29,15 @@
  */
 
 static void zLimThread(arg_t arg);
+
+/**
+ * @brief interní proměnná pro zaznamenání že je proudová pojistka aktivní
+ */
 static bool_t zLimLimitation = FALSE;
 
 /**
  * @brief inicializuje modul, jenom vytvoří periodickou rutinu pro scheduler
+ * \ref zLimThread
  */
 void zLimInit(void)
 {
@@ -49,6 +54,8 @@ void zLimInit(void)
  * @brief rutina je volaná každéch 100ms
  * @details
  * vyhodnocuje jesli došlo k proudovymu omezeni
+ * stylem že výstupní proud už je přes 90% omezení a výstupní napětí
+ * je menší než 90% nastavenyho
  */
 void zLimThread(arg_t arg)
 {
@@ -89,6 +96,12 @@ void zLimThread(arg_t arg)
 #endif
 }
 
+/**
+ * @brief vrací jestli je zdroj v oblasti limitace proudu
+ * @return
+ *  - TRUE pokud už proudová pojistka zabírá
+ *  - FALSE pokud je proudová pojistka neaktivní
+ */
 bool_t zLimIsCurrentLimited(void)
 {
 	return zLimLimitation;

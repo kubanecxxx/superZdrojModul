@@ -20,6 +20,9 @@
 
 /**
  * @brief inicializace DA převodníku
+ * @details nastaví interni periferie STM a přistupuje přímo k HW
+ * použito pro nastavení výstupního napětí OPA \ref opaSetVoltage
+ * a limitace proudu OPA \ref opaSetCurrent
  */
 void daInit(void)
 {
@@ -38,6 +41,9 @@ void daInit(void)
 
 /**
  * @brief nastavení výstupního napětí na DA převodníku
+ * @param
+ * 	[in] channel číslo kanálu 1/2
+ * 	[in] mv výstupní napětí v mV
  */
 void daSetVoltage(uint8_t channel, uint16_t mv)
 {
