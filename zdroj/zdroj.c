@@ -146,6 +146,6 @@ bool_t zdrIsCurrentLimited(void)
 	return zLimIsCurrentLimited();
 }
 
-/*
+/**
  * @}
  */

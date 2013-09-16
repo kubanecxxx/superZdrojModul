@@ -85,9 +85,10 @@ LDSCRIPT= STM32F10068.ld
 # krida setup 
 CPPFILES = $(wildcard *.cpp) #$(wildcard */*.cpp)  
 CFILES = $(wildcard *.c) $(wildcard scheduler/*.c) $(wildcard port/*.c)#$(wildcard */*.c) 
-CFILES += $(wildcard zdroj/*.c)	 
+CFILES += $(wildcard zdroj/*.c)
+CFILES += $(wildcard remote/*.c)	 	 
 
-INCDIR += scheduler port zdroj
+INCDIR += scheduler port zdroj remote
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.

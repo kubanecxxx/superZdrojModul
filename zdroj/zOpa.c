@@ -196,6 +196,6 @@ uint16_t opaGetOutputVoltageSetup(void)
 	return outputVoltage;
 }
 
-/*
+/**
  * @}
  */

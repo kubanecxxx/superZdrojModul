@@ -2,6 +2,7 @@
 #include "hal.h"
 #include "scheduler.h"
 #include "zdroj.h"
+#include "remote.h"
 
 //#pragma GCC push_options
 //#pragma GCC optimize ("O0")
@@ -39,9 +40,11 @@ int main(void)
 	palSetGroupMode(GPIOC,0b111,13,PAL_MODE_OUTPUT_PUSHPULL);
 	palClearPort(GPIOC,(1 << 13) | (1 << 14) | (1 <<15));
 	shFillStruct(&blikej, blik, NULL, (200), PERIODIC);
-	shRegisterStruct(&blikej);
+	//shRegisterStruct(&blikej);
 
 	zdrInit();
+
+	remoteInit();
 
 	while (TRUE)
 	{

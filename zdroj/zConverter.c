@@ -116,15 +116,6 @@ uint16_t low_level_spi_in_out(uint16_t cmd)
  */
 void conInit(void)
 {
-#if 0
-	//přemapování SPI1
-	RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;
-	AFIO->MAPR |= 1;
-	//odpojit JTAG kvuli PA15
-	AFIO->MAPR |= 0b010 << 24;
-	//mosi, sck
-#endif
-
 	//low level init
 	spi_setMode(MOSI,PAL_MODE_OUTPUT_PUSHPULL);
 	spi_setMode(SCK,PAL_MODE_OUTPUT_PUSHPULL);

@@ -37,7 +37,7 @@ static bool_t zLimLimitation = FALSE;
 void zLimInit(void)
 {
 	static delay_t del;
-	shFillStruct(&del, zLimThread, NULL, MS2ST(100), PERIODIC);
+	shFillStruct(&del, zLimThread, NULL, MS2ST(50), PERIODIC);
 	shRegisterStruct(&del);
 
 #ifdef DEBUG_LED
