@@ -44,8 +44,8 @@ typedef struct
  */
 typedef struct
 {
-	uint16_t returnVals[rCOUNT];		///< seznam hodnot pro čtení
-	dataWrite_t writeVals[wCOUNT];		///< seznam metod + hodnot pro zápis
+	uint16_t returnVals[rCOUNT]; ///< seznam hodnot pro čtení
+	dataWrite_t writeVals[wCOUNT]; ///< seznam metod + hodnot pro zápis
 } data_t;
 
 /**
@@ -53,7 +53,6 @@ typedef struct
  * do zdroje a vice-versa
  */
 static data_t data;
-
 
 static void autoRefresh(arg_t arg);
 
@@ -99,7 +98,7 @@ static void autoRefresh(arg_t arg);
 	case 1:
 		if (write)
 		{
-			dta = SPI1->DR;
+			dta = spi;
 			machine = 2;
 		}
 		else
@@ -109,7 +108,7 @@ static void autoRefresh(arg_t arg);
 		}
 		break;
 	case 2:
-		dta |= SPI1->DR << 8;
+		dta |= spi << 8;
 		machine = 0;
 		data.writeVals[cmd].changed = TRUE;
 		data.writeVals[cmd].value = dta;
@@ -167,7 +166,7 @@ void remoteInit(void)
 
 	data.writeVals[wCURRENTLIMIT].method = zdrSetCurrentLimit;
 	data.writeVals[wOUTPUTVOLTAGE].method = zdrSetVoltage;
-	data.writeVals[wENABLE].method = (fce)zdrSetEnabled;
+	data.writeVals[wENABLE].method = (fce) zdrSetEnabled;
 
 	shFillStruct(&del, autoRefresh, NULL, MS2ST(10), PERIODIC);
 	shRegisterStruct(&del);
