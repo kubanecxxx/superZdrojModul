@@ -20,9 +20,10 @@
  * 	- 16bitů data (tam/zpátky závisi na přikazu)
  * 	  -# low byte
  * 	  -# high byte
+ * 	- 8bitů kontrolní součet = (lowbyte + highbyte) ^ 0b10101010 při čtení z pohledu mastera
+ *							(cmd + lowbyte + highbyte) ^ 0b10101010 při zápisu z pohledu mastera
  *
- *
- *	pokud zapisuje sem tak slave odpovidá nějaky hovna (asi nuly)
+ *	pokud zapisuje sem tak slave odpovidá nějaky hovna (0x00 00 00 00)
  *	pokud vyčitá tak master posilá nějaky hovna a slave posilá zpátky data
  *
  * @{

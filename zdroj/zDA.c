@@ -27,6 +27,7 @@
 void daInit(void)
 {
 	palSetGroupMode(GPIOA,0b11,4,PAL_MODE_INPUT_ANALOG);
+	palSetPadMode(GPIOA,1,PAL_MODE_INPUT_ANALOG);
 
 	RCC->APB1ENR |= RCC_APB1ENR_DACEN;
 	DAC->CR |= DAC_CR_TSEL2_0 | DAC_CR_TSEL2_1 | DAC_CR_TSEL2_2;
@@ -52,13 +53,18 @@ void daSetVoltage(uint8_t channel, uint16_t mv)
 	if (channel > 2)
 		return;
 
-	data = (uint32_t)  (mv *  1221) / 1000;
 	if (channel == 1)
 	{
+		data = (uint32_t)  (mv *  zConstants.refDA1) / 1000;
+		allData.daVoltageMV = mv;
+		allData.daVoltageData = data;
 		DAC->DHR12R1 = data;
 	}
 	else if (channel == 2)
 	{
+		data = (uint32_t)  (mv *  zConstants.refDA2) / 1000;
+		allData.daCurrentMV = mv;
+		allData.daCurrentData = data;
 		DAC->DHR12R2 = data;
 	}
 

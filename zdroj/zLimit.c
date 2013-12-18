@@ -86,7 +86,6 @@ void zLimThread(arg_t arg)
 			zLimLimitation = TRUE;
 
 	// todo snížit napětí z měniče pokud bude zabirat proudová pojistka
-	// todo zkusit to vymyslet tak aby to fungovalo rychléš
 
 #ifdef DEBUG_LED
 	if (zLimLimitation)

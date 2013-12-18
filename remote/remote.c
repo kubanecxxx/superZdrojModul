@@ -36,6 +36,7 @@ typedef struct
 	bool_t changed; ///< hodnota byla změněna
 	uint16_t value; ///< hodnota do metody
 	fce method; ///< metoda co semá volat
+	bool crcOK;
 } dataWrite_t;
 
 /**
@@ -46,6 +47,8 @@ typedef struct
 {
 	uint16_t returnVals[rCOUNT]; ///< seznam hodnot pro čtení
 	dataWrite_t writeVals[wCOUNT]; ///< seznam metod + hodnot pro zápis
+	uint8_t writeCRCComputed;
+	uint8_t readCRC;
 } data_t;
 
 /**
@@ -53,6 +56,11 @@ typedef struct
  * do zdroje a vice-versa
  */
 static data_t data;
+
+static void cb(void * arg)
+{
+	*((uint8_t *) arg) = 0;
+}
 
 static void autoRefresh(arg_t arg);
 
@@ -71,6 +79,7 @@ static void autoRefresh(arg_t arg);
 	static uint16_t dta;
 	static uint8_t machine = 0;
 	static uint8_t counter = 0;
+	static VirtualTimer timer;
 
 	CH_IRQ_PROLOGUE();
 	//chSysLockFromIsr();
@@ -87,32 +96,66 @@ static void autoRefresh(arg_t arg);
 			cmd &= ~WRITE;
 			SPI1->DR = 0;
 			machine = 1;
+			data.writeCRCComputed = spi;
 		}
 		else
 		{
 			write = 0;
 			SPI1->DR = data.returnVals[cmd] & 0xFF;
 			machine = 1;
+			data.readCRC = 0;
+			data.readCRC += data.returnVals[cmd] & 0xff;
 		}
+
+		chSysLockFromIsr()
+		;
+		if (chVTIsArmedI(&timer))
+			chVTResetI(&timer);
+		else
+			chVTSetI(&timer, MS2ST(5), cb, &machine);
+		chSysUnlockFromIsr()
+		;
+
 		break;
 	case 1:
 		if (write)
 		{
+			SPI1->DR = 0;
 			dta = spi;
+			data.writeCRCComputed += spi;
 			machine = 2;
 		}
 		else
 		{
 			SPI1->DR = data.returnVals[cmd] >> 8;
-			machine = 5; //už není potřeba obsluhovat
+			data.readCRC += data.returnVals[cmd] >> 8;
+			machine = 2;
 		}
 		break;
 	case 2:
-		dta |= spi << 8;
-		machine = 0;
-		data.writeVals[cmd].changed = TRUE;
-		data.writeVals[cmd].value = dta;
+		if (write)
+		{
+			SPI1->DR = 0;
+			dta |= spi << 8;
+			machine = 3;
+			data.writeVals[cmd].value = dta;
+			data.writeCRCComputed += spi;
+			data.writeCRCComputed ^= 0b10101010;
+		}
+		else
+		{
+			machine = 5;
+			data.readCRC ^= 0b10101010;
+			SPI1->DR = data.readCRC;
+		}
 		break;
+	case 3:
+		SPI1->DR = 0;
+		data.writeVals[cmd].crcOK = (spi == data.writeCRCComputed);
+		data.writeVals[cmd].changed = TRUE;
+		machine = 0;
+		break;
+
 	default:
 		machine = 0;
 		SPI1->DR = 0;
@@ -120,10 +163,8 @@ static void autoRefresh(arg_t arg);
 	}
 
 	SPI1->SR = 0;
-	//machine++;
-
-	//chSysUnlockFromIsr();
-	CH_IRQ_EPILOGUE();
+	CH_IRQ_EPILOGUE()
+	;
 
 }
 
@@ -149,10 +190,10 @@ void remoteInit(void)
 	//mosi, sck
 #endif
 	//port init
-	palSetPadMode(GPIOB,3,PAL_MODE_INPUT);
-	palSetPadMode(GPIOB,4,PAL_MODE_STM32_ALTERNATE_PUSHPULL);
-	palSetPadMode(GPIOB,5,PAL_MODE_INPUT);
-	palSetPadMode(GPIOA,15,PAL_MODE_INPUT);
+	palSetPadMode(GPIOB, 3, PAL_MODE_INPUT);
+	palSetPadMode(GPIOB, 4, PAL_MODE_STM32_ALTERNATE_PUSHPULL);
+	palSetPadMode(GPIOB, 5, PAL_MODE_INPUT);
+	palSetPadMode(GPIOA, 15, PAL_MODE_INPUT);
 
 	//spi slave init, rx interrupt
 	rccEnableSPI1(TRUE);
@@ -179,6 +220,7 @@ void remoteInit(void)
  */
 void autoRefresh(arg_t arg)
 {
+	static uint16_t error_cnt = 0;
 	(void) arg;
 	data.returnVals[rCURRENT] = zdrGetCurrent();
 	data.returnVals[rVOLTAGE] = zdrGetVoltage();
@@ -194,8 +236,15 @@ void autoRefresh(arg_t arg)
 		t = &data.writeVals[i];
 		if (t->changed)
 		{
-			t->method(t->value & 0xff);
-			t->changed = FALSE;
+			if (t->crcOK)
+			{
+				t->method(t->value & 0xffff);
+				t->changed = FALSE;
+			}
+			else
+			{
+				error_cnt++;
+			}
 		}
 	}
 }

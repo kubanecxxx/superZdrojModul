@@ -78,10 +78,12 @@ void opaInit(void)
  */
 void opaSetVoltage(uint16_t mV)
 {
-	uint16_t temp;
+	uint32_t temp;
 	outputVoltage = mV;
+	allData.opaVoltageMV = mV;
+	uint32_t div = (100*zConstants.opaVoltR2 / zConstants.opaVoltR1 + 100); // ~11
 
-	temp = mV / (zConstants.opaVoltR2 / zConstants.opaVoltR1 + 1); //mV / 11
+	temp = (uint32_t)(100*mV) / div; //mV / div
 	daSetVoltage(VOLTAGE, temp);
 }
 
@@ -91,6 +93,8 @@ void opaSetVoltage(uint16_t mV)
  *
  * musí přepočítat pojistku na napěti kterym ho má krmit
  * na výstupu DA je ještě zesilovač 2x
+ *
+ * 5mv nahoru znamená asi 10mA omezeni dolu
  */
 void opaSetCurrent(uint16_t mA)
 {
@@ -103,14 +107,15 @@ void opaSetCurrent(uint16_t mA)
 	uint32_t tme;
 	uint32_t korigovano;
 	temp /= 15000;
-	temp = 4880 - temp;
-	//@todo 4750 hodit do konstant protože u druhyho bude asi jinak
+	temp = zConstants.opaCurrVoltage - temp;
 	//děleno dvěma protože na vystupu je zesilovač 2x
+	//napětí na vstupu OPA548
+	allData.opaCurrentOZ = temp;
+
 	tme = temp / 2;
 	//tme += 50;
-	//@todo dalši konstanta
 	//zesilovač nemá přesně zesileni 2x
-	korigovano = tme * 10312;
+	korigovano = tme * zConstants.opaCurrOZ;
 	korigovano /= 10000;
 
 	daSetVoltage(CURRENT, tme);

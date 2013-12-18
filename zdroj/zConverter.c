@@ -103,6 +103,9 @@ bool_t conSetVoltage(uint16_t voltage)
 	ven = data;
 	ven |= 0b00110000 << 8;
 
+	allData.daConverterMV = data >> 1;
+	allData.ConverterVoltageMV = voltage * 100;
+
 	LDAC_H();
 	low_level_spi_in_out(ven);
 	LDAC_L();

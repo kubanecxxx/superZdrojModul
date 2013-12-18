@@ -39,6 +39,23 @@ void zdrInit(void)
 }
 
 /**
+ * @brief
+ * nastavení celyho zdroje jednim přikazem přes strukturu
+ */
+void zdrSetup(zdr_t * zdr)
+{
+	zdrSetEnabled(zdr->en);
+	zdrSetVoltage(zdr->mv);
+	zdrSetCurrentLimit(zdr->ma);
+	zdr->current = zdrGetCurrent();
+	zdr->voltage = zdrGetVoltage();
+	zdr->voltageCon = zdrGetVoltageConverter();
+	zdr->enabled = zdrIsOutputEnabled();
+	zdr->thermalFail = zdrIsThermalFailure();
+	zdr->currentLimit = zdrIsCurrentLimited();
+}
+
+/**
  * @brief nastaví výstupní napětí zdroje
  * @param[in] výstupní napětí v mV
  *
@@ -141,10 +158,48 @@ void zdrProcessData(void)
 	adProcessData();
 }
 
+/**
+ * @brief vrátí stav záběru proudové pojistky
+ * @return
+ *  + TRUE pokud je aktivni proudovy omezeni
+ *  + FALSE pokud je všecko OK
+ */
 bool_t zdrIsCurrentLimited(void)
 {
 	return zLimIsCurrentLimited();
 }
+
+/**
+ * @brief ladící funkce na přímé ovládání
+ * D/A převodníků
+ */
+#ifdef ADC_DEBUG
+#include "zDA.h"
+
+static volatile uint16_t vVoltage = 0, vCurr = 0;
+static volatile uint16_t tv = 0, tc = 0;
+static volatile uint16_t s = 1;
+
+void zdrDacRoutine(void)
+{
+	if (s)
+	{
+		daInit();
+		s = 0;
+	}
+	if (tv != vVoltage)
+	{
+		daSetVoltage(1, vVoltage);
+		tv = vVoltage;
+	}
+	if (tc != vCurr)
+	{
+		daSetVoltage(2, vCurr);
+		tc = vCurr;
+	}
+
+}
+#endif
 
 /**
  * @}

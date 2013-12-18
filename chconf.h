@@ -34,10 +34,27 @@
 
 //#define CORTEX_ENABLE_WFI_IDLE TRUE
 #define DEBUG
+//#define OPTIMIZE_FINISH
+/*
+ * vypne uplně všechno jenom bude nastavovat hodnoty na DA převodniku
+ * použit stmaster
+ */
+//#define ADC_DEBUG
 
 #ifdef DEBUG
 #define DEBUG_LED
 #endif
+
+#ifdef OPTIMIZE_FINISH
+#define CH_DBG_SYSTEM_STATE_CHECK FALSE
+#define CH_DBG_ENABLE_CHECKS            FALSE
+#define CH_DBG_ENABLE_ASSERTS           FALSE
+#define CH_DBG_ENABLE_TRACE             FALSE
+#define CH_DBG_ENABLE_STACK_CHECK       FALSE
+#define CH_DBG_FILL_THREADS             FALSE
+#define CH_DBG_THREADS_PROFILING        FALSE
+#endif
+
 
 /*===========================================================================*/
 /**
@@ -203,7 +220,7 @@
  * @note    The default is @p TRUE.
  */
 #if !defined(CH_USE_MUTEXES) || defined(__DOXYGEN__)
-#define CH_USE_MUTEXES                  TRUE
+#define CH_USE_MUTEXES                  FALSE
 #endif
 
 /**
@@ -237,7 +254,7 @@
  * @note    The default is @p TRUE.
  */
 #if !defined(CH_USE_EVENTS) || defined(__DOXYGEN__)
-#define CH_USE_EVENTS                   TRUE
+#define CH_USE_EVENTS                   FALSE
 #endif
 
 /**
@@ -249,7 +266,7 @@
  * @note    Requires @p CH_USE_EVENTS.
  */
 #if !defined(CH_USE_EVENTS_TIMEOUT) || defined(__DOXYGEN__)
-#define CH_USE_EVENTS_TIMEOUT           TRUE
+#define CH_USE_EVENTS_TIMEOUT           FALSE
 #endif
 
 /**
@@ -284,7 +301,7 @@
  * @note    Requires @p CH_USE_SEMAPHORES.
  */
 #if !defined(CH_USE_MAILBOXES) || defined(__DOXYGEN__)
-#define CH_USE_MAILBOXES                TRUE
+#define CH_USE_MAILBOXES                FALSE
 #endif
 
 /**
@@ -305,7 +322,7 @@
  * @note    The default is @p TRUE.
  */
 #if !defined(CH_USE_MEMCORE) || defined(__DOXYGEN__)
-#define CH_USE_MEMCORE                  TRUE
+#define CH_USE_MEMCORE                  FALSE
 #endif
 
 /**
@@ -344,7 +361,7 @@
  * @note    The default is @p TRUE.
  */
 #if !defined(CH_USE_MEMPOOLS) || defined(__DOXYGEN__)
-#define CH_USE_MEMPOOLS                 TRUE
+#define CH_USE_MEMPOOLS                 FALSE
 #endif
 
 /**

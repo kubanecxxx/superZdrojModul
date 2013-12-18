@@ -87,7 +87,7 @@ static void vtcb(void *);
  */
 void adInit(void)
 {
-	palSetGroupMode(GPIOA,0b1111,0,PAL_MODE_INPUT_ANALOG);
+	palSetGroupMode(GPIOA,0b1101,0,PAL_MODE_INPUT_ANALOG);
 	adcStart(&ADCD1, NULL);
 	chVTSet(&vt,MS2ST(50),vtcb,NULL);
 }
@@ -173,7 +173,7 @@ void adProcessData(void)
 
 	for (i = 0; i < 4; i++)
 	{
-		buf[i] = buf[i] * 1200 / buf[4];
+		buf[i] = buf[i] * zConstants.refAD / buf[4];
 	}
 
 	 conAdcData = buf[0]; //napěti za měničem
