@@ -12,7 +12,7 @@
 #error "zfiles can be included only in zdroj.c"
 #endif
 
-#include <stdint.h>
+#include "ch.h"
 
 /**
  * @ingroup zlock
@@ -61,6 +61,7 @@ struct zConstants_t
 	uint16_t opaVoltR1;///< vstupní odpor OPA
 	uint16_t opaVoltR2;///< feedback odpor OPA
 	/**
+	 *  @brief
 	 *  za DA převodnikem je zesilovač 2x
 	 *  ale nemá přesně zesílení 2
 	 *  timhle čislem se násobijou mV, ktery se maji posilat
@@ -68,6 +69,7 @@ struct zConstants_t
 	 */
 	uint16_t opaCurrOZ;
 	/**
+	 * @brief
 	 * hodnota zdroje napětí, kterej má v sobě OPA
 	 * při tomhle napětí je proud omezenej na minimum
 	 * katalogová hodnota je 4750mV
@@ -75,6 +77,7 @@ struct zConstants_t
 	uint16_t opaCurrVoltage;
 
 	/**
+	 * @brief
 	 * timhle čislem se násobijou mV co maji jit na D/A převondnik
 	 * pak se vydělijou 1000 a pošlou se tam
 	 */
@@ -82,6 +85,7 @@ struct zConstants_t
 	uint16_t refDA2; ///< referenční napětí D/A převodníku MCU v mV
 
 	/**
+	 * @brief
 	 * timhle se násobijou všechny vzorky a pak se dělijou referenčním napetim
 	 * hodnota kolem 1200
 	 */

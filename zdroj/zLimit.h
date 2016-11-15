@@ -11,6 +11,6 @@
 #include "zlock.h"
 
 void zLimInit(void);
-INLINE bool_t zLimIsCurrentLimited(void);
+inline bool zLimIsCurrentLimited(void);
 
 #endif /* ZLIMIT_H_ */

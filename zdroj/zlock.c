@@ -21,15 +21,15 @@
  */
  zConstants_t zConstants =
 {
-	.measCurMul = 11,
-	.measCurDiv = 20,
-	.measOutVoltR1 = 33000,
-	.measOutVoltR2 = 10000, //přepájet na 1200
+	.measCurMul = 117,
+	.measCurDiv = 200,
+	.measOutVoltR1 = 32995,
+	.measOutVoltR2 = 1210,
 	.opaVoltR1 = 975,
 	.opaVoltR2 = 10000,
 	.measConvVoltR1 = 33000,
 	.measConvVoltR2 = 1200,
-	.refDA1 = 1221,
+	.refDA1 = 1251,
 	.refDA2 = 1215,
 	.opaCurrOZ = 10000,
 	.opaCurrVoltage = 4880,

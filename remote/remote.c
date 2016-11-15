@@ -12,6 +12,7 @@
 #include "scheduler.h"
 #include "zdroj.h"
 #include "remoteProtocol.h"
+#include "crc8.h"
 
 /**
  * @ingroup remote
@@ -33,7 +34,7 @@ typedef void (*fce)(uint16_t value);
  */
 typedef struct
 {
-	bool_t changed; ///< hodnota byla změněna
+    bool changed; ///< hodnota byla změněna
 	uint16_t value; ///< hodnota do metody
 	fce method; ///< metoda co semá volat
 	bool crcOK;
@@ -79,7 +80,7 @@ static void autoRefresh(arg_t arg);
 	static uint16_t dta;
 	static uint8_t machine = 0;
 	static uint8_t counter = 0;
-	static VirtualTimer timer;
+    static virtual_timer_t timer;
 
 	CH_IRQ_PROLOGUE();
 	//chSysLockFromIsr();
@@ -96,7 +97,8 @@ static void autoRefresh(arg_t arg);
 			cmd &= ~WRITE;
 			SPI1->DR = 0;
 			machine = 1;
-			data.writeCRCComputed = spi;
+			data.writeCRCComputed = 0;
+			crc8(&data.writeCRCComputed,spi);
 		}
 		else
 		{
@@ -104,7 +106,7 @@ static void autoRefresh(arg_t arg);
 			SPI1->DR = data.returnVals[cmd] & 0xFF;
 			machine = 1;
 			data.readCRC = 0;
-			data.readCRC += data.returnVals[cmd] & 0xff;
+			crc8(&data.readCRC,data.returnVals[cmd] & 0xff);
 		}
 
 		chSysLockFromIsr()
@@ -122,13 +124,14 @@ static void autoRefresh(arg_t arg);
 		{
 			SPI1->DR = 0;
 			dta = spi;
-			data.writeCRCComputed += spi;
+			crc8(&data.writeCRCComputed,spi);
 			machine = 2;
 		}
 		else
 		{
 			SPI1->DR = data.returnVals[cmd] >> 8;
-			data.readCRC += data.returnVals[cmd] >> 8;
+			crc8(&data.readCRC, data.returnVals[cmd] >> 8);
+			//data.readCRC += data.returnVals[cmd] >> 8;
 			machine = 2;
 		}
 		break;
@@ -139,19 +142,19 @@ static void autoRefresh(arg_t arg);
 			dta |= spi << 8;
 			machine = 3;
 			data.writeVals[cmd].value = dta;
-			data.writeCRCComputed += spi;
-			data.writeCRCComputed ^= 0b10101010;
+			crc8(&data.writeCRCComputed,spi);
 		}
 		else
 		{
 			machine = 5;
-			data.readCRC ^= 0b10101010;
+			//data.readCRC ^= 0b10101010;
 			SPI1->DR = data.readCRC;
 		}
 		break;
 	case 3:
 		SPI1->DR = 0;
-		data.writeVals[cmd].crcOK = (spi == data.writeCRCComputed);
+		crc8(&data.writeCRCComputed,spi);
+		data.writeVals[cmd].crcOK = (data.writeCRCComputed == 0);
 		data.writeVals[cmd].changed = TRUE;
 		machine = 0;
 		break;
@@ -199,7 +202,7 @@ void remoteInit(void)
 	rccEnableSPI1(TRUE);
 	//SPI1->CR1 = SPI_CR1_DFF   ;
 	//priority must be lower than 0
-	nvicEnableVector(SPI1_IRQn, CORTEX_PRIORITY_MASK(6));
+    nvicEnableVector(SPI1_IRQn, 6);
 	SPI1->CR2 = SPI_CR2_RXNEIE;
 	SPI1->CR1 = SPI_CR1_SPE;
 
@@ -208,6 +211,9 @@ void remoteInit(void)
 	data.writeVals[wCURRENTLIMIT].method = zdrSetCurrentLimit;
 	data.writeVals[wOUTPUTVOLTAGE].method = zdrSetVoltage;
 	data.writeVals[wENABLE].method = (fce) zdrSetEnabled;
+
+	//generate lookup table for crc
+	init_crc8();
 
 	shFillStruct(&del, autoRefresh, NULL, MS2ST(10), PERIODIC);
 	shRegisterStruct(&del);
@@ -248,6 +254,9 @@ void autoRefresh(arg_t arg)
 		}
 	}
 }
+
+
+
 
 /**
  * @}

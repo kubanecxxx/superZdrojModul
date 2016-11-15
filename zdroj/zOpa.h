@@ -15,11 +15,11 @@ void opaSetVoltage(uint16_t mV);
 void opaSetCurrent(uint16_t mA);
 uint16_t opaGetOutputVoltage(void);
 uint16_t opaGetOutputCurrent(void);
-void opaSetEnabled(bool_t enabled);
-INLINE void opaSetDisabled(bool_t disabled);
-bool_t opaIsThermalFailure(void);
-INLINE bool_t opaIsEnabled(void);
-INLINE uint16_t opaGetCurrentLimitSetup(void);
-INLINE uint16_t opaGetOutputVoltageSetup(void);
+void opaSetEnabled(bool enabled);
+inline void opaSetDisabled(bool disabled);
+bool opaIsThermalFailure(void);
+inline bool opaIsEnabled(void);
+inline uint16_t opaGetCurrentLimitSetup(void);
+inline uint16_t opaGetOutputVoltageSetup(void);
 
 #endif /* ZOPA_H_ */

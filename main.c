@@ -5,13 +5,14 @@
 #include "remote.h"
 
 zdr_t zdr ={.ma = 100, .mv = 10000, .en = TRUE};
+systime_t sysTime;
 
 void blik(void * arg)
 {
 	(void) arg;
 	palTogglePort(GPIOC,(1 << 13) | (1 << 14) );
 
-	//zdrSetup(&zdr);
+	zdrSetup(&zdr);
 }
 
 delay_t blikej;
@@ -33,8 +34,9 @@ int main(void)
 	zdrInit();
 	remoteInit();
 
-	while (TRUE)
+	while(TRUE)
 	{
+        sysTime = chVTGetSystemTime();
 		shPlay();
 		chThdSleepMilliseconds(1);
 		zdrProcessData();
@@ -71,3 +73,4 @@ void operator delete(void* m)
 }
 
 #endif
+

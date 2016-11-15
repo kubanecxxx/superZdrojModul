@@ -77,7 +77,7 @@ uint16_t conAdcData = 0;
  * @brief nastavit vystupní napětí na výstupu měniče
  * posílá se hodnota 10x větší než se má ve skutečnosti nastavit
  */
-bool_t conSetVoltage(uint16_t voltage)
+bool conSetVoltage(uint16_t voltage)
 {
 	uint16_t ven;
 	uint32_t tisicU;

@@ -10,7 +10,7 @@
 
 #include "zlock.h"
 
-bool_t conSetVoltage(uint16_t voltage);
+bool conSetVoltage(uint16_t voltage);
 uint16_t conGetVoltage(void);
 void conInit(void);
 

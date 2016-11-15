@@ -77,7 +77,7 @@ adccb, /*
 //#pragma GCC push_options
 //#pragma GCC optimize ("O2")
 
-static VirtualTimer vt;
+static virtual_timer_t vt;
 static void vtcb(void *);
 
 /**
@@ -92,7 +92,7 @@ void adInit(void)
 	chVTSet(&vt,MS2ST(50),vtcb,NULL);
 }
 
-static bool_t buffer_full = FALSE;
+static bool buffer_full = FALSE;
 
 /**
  * @brief callback od virtuálního timeru dycky jenom spustí další adcpřevod
@@ -105,9 +105,9 @@ void vtcb(void * arg)
 	(void) arg;
 	static uint16_t * ptr = bufer;
 
-	chSysLockFromIsr();
+    chSysLockFromISR();
 	adcStartConversionI(&ADCD1, &adcgrpcfg, ptr, 2);
-	chSysUnlockFromIsr();
+    chSysUnlockFromISR();
 
 	//pokaždy si inkrementuje pointer
 	//až je buffer plnej tak to vrátí na začátek a řekne to někomu
@@ -135,10 +135,10 @@ void adccb(ADCDriver *adcp, adcsample_t *buffer, size_t n)
 	if (adcp->state != ADC_COMPLETE)
 		return;
 
-	chSysLockFromIsr();
+    chSysLockFromISR();
 	if (!chVTIsArmedI(&vt) && buffer_full == FALSE)
 		chVTSetI(&vt, MS2ST(10), vtcb, NULL);
-	chSysUnlockFromIsr();
+    chSysUnlockFromISR();
 }
 
 /**

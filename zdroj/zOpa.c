@@ -22,7 +22,7 @@
 /**
  * @brief paměť že je výstup zdroj zapnuté
  */
-static bool_t enabled = FALSE;
+static bool enabled = FALSE;
 /**
  * @brief latch výstupního napětí
  */
@@ -127,7 +127,7 @@ void opaSetCurrent(uint16_t mA)
  * 	+ TRUE výstup se zapne
  * 	+ FALSE výstup se vypne
  */
-void opaSetEnabled(bool_t enable)
+void opaSetEnabled(bool enable)
 {
 	enabled = enable;
 
@@ -150,7 +150,7 @@ void opaSetEnabled(bool_t enable)
  * 	+ TRUE výstup se vypne
  * 	+ FALSE výstup se zapne
  */
-void opaSetDisabled(bool_t disable)
+void opaSetDisabled(bool disable)
 {
 	opaSetEnabled(!disable);
 }
@@ -163,7 +163,7 @@ void opaSetDisabled(bool_t disable)
  *
  * testuje jesli je výstup aktivní, přehřátí je pak značeno přizeměním ES
  */
-bool_t opaIsThermalFailure(void)
+bool opaIsThermalFailure(void)
 {
 	if (opaIsEnabled())
 	{
@@ -177,7 +177,7 @@ bool_t opaIsThermalFailure(void)
 /**
  * @brief zavrátí jesli je výstup zdroje zapnuté nebo ne
  */
-bool_t opaIsEnabled(void)
+bool opaIsEnabled(void)
 {
 	return enabled;
 }
@@ -202,7 +202,7 @@ uint16_t opaGetOutputCurrent(void)
 	 * bude lepši ladit až přimo na zátěži
 	 */
 	//20V per 10A
-	uint16_t temp = _adProud1 * zConstants.measCurMul;
+	uint32_t temp = _adProud1 * zConstants.measCurMul;
 	temp = temp / zConstants.measCurDiv;
 	return temp;
 }

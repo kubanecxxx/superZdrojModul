@@ -22,6 +22,11 @@
  */
 
 /**
+ * @brief latch výstupního napětí měniče v mV
+ */
+static uint16_t volConverterLatch;
+
+/**
  * @brief nastavení celyho zdroje
  *
  * @details defaultní výstupní hodnoty
@@ -60,10 +65,16 @@ void zdrSetup(zdr_t * zdr)
  * @param[in] výstupní napětí v mV
  *
  * zároveň si poladi předměnič
+ * @warning pokud je napěti stejny jak minule tak nic neudělá
  */
 void zdrSetVoltage(uint16_t mV)
 {
+	static uint16_t altemV = 0;
 	uint16_t menic;
+
+	if (mV == altemV)
+		return;
+	altemV = mV;
 
 	//napětí o pět voltů víc poleze z měniče
 	//minimálně aspon 10V
@@ -71,7 +82,13 @@ void zdrSetVoltage(uint16_t mV)
 	if (menic < 10000)
 		menic = 10000;
 
-	conSetVoltage(menic / 100);
+	volConverterLatch = menic;
+	//pokud zabira proudovy omezeni tak se napeti menicem
+	//ridi z modulu zLimit
+	if (!zLimIsCurrentLimited())
+	{
+		conSetVoltage(menic / 100);
+	}
 
 	opaSetVoltage(mV);
 }
@@ -115,7 +132,7 @@ uint16_t zdrGetVoltage(void)
 /**
  * @brief funkce připojí výstupní napětí k výstupním svorkám
  */
-void zdrSetEnabled(bool_t enable)
+void zdrSetEnabled(bool enable)
 {
 	opaSetEnabled(enable);
 }
@@ -123,7 +140,7 @@ void zdrSetEnabled(bool_t enable)
 /**
  * @brief funkce odpojí výstupní napětí od výstupních svorek
  */
-void zdrSetDisabled(bool_t disable)
+void zdrSetDisabled(bool disable)
 {
 	opaSetDisabled(disable);
 }
@@ -134,7 +151,7 @@ void zdrSetDisabled(bool_t disable)
  *  + TRUE pokud je přehřáto
  *  + FALSE pokud je v pořádku
  */
-bool_t zdrIsThermalFailure(void)
+bool zdrIsThermalFailure(void)
 {
 	return opaIsThermalFailure();
 }
@@ -145,7 +162,7 @@ bool_t zdrIsThermalFailure(void)
  *  + TRUE pokud je výstup aktivní
  *  + FALSE pokud je výstup vypnutý
  */
-bool_t zdrIsOutputEnabled(void)
+bool zdrIsOutputEnabled(void)
 {
 	return opaIsEnabled();
 }
@@ -164,9 +181,19 @@ void zdrProcessData(void)
  *  + TRUE pokud je aktivni proudovy omezeni
  *  + FALSE pokud je všecko OK
  */
-bool_t zdrIsCurrentLimited(void)
+bool zdrIsCurrentLimited(void)
 {
 	return zLimIsCurrentLimited();
+}
+
+/**
+ * @brief vrátí latchnutou hodnotu výstupního napětí měniče
+ * kterou nastavuje uživatel - hodnota není ovlivněna pokud
+ * se do toho míchá proudová pojistka
+ */
+uint16_t zdrGetVoltageConverterLatched(void)
+{
+	return volConverterLatch;
 }
 
 /**

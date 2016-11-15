@@ -13,6 +13,7 @@
 #include "scheduler.h"
 #include "zOpa.h"
 #include "zConverter.h"
+#include "zdroj.h"
 
 /**
  * @ingroup zdroj
@@ -33,7 +34,8 @@ static void zLimThread(arg_t arg);
 /**
  * @brief interní proměnná pro zaznamenání že je proudová pojistka aktivní
  */
-static bool_t zLimLimitation = FALSE;
+static bool zLimLimitation = FALSE;
+static bool zWasLimited = FALSE;
 
 /**
  * @brief inicializuje modul, jenom vytvoří periodickou rutinu pro scheduler
@@ -46,7 +48,7 @@ void zLimInit(void)
 	shRegisterStruct(&del);
 
 #ifdef DEBUG_LED
-	palSetPadMode(GPIOC,15,PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPadMode(GPIOC, 15, PAL_MODE_OUTPUT_PUSHPULL);
 #endif
 }
 
@@ -81,17 +83,43 @@ void zLimThread(arg_t arg)
 	volTemp /= 10; //90%
 
 	zLimLimitation = FALSE;
-	if (curTemp < curReal)
-		if (volTemp > volReal)
-			zLimLimitation = TRUE;
+	if (curTemp < curReal && volTemp > volReal)
+		zLimLimitation = TRUE;
 
-	// todo snížit napětí z měniče pokud bude zabirat proudová pojistka
+#if 0
+	//hysterze
+	curTemp = curReal * 95;
+	curTemp /= 100; //90%
+
+	volTemp = volReal * 95;
+	volTemp /= 100;//90%
+
+	if (curTemp >= curUser || volTemp <= volUser)
+	zLimLimitation = FALSE;
+
+#endif
+	uint32_t newVolt;
+	if (zLimLimitation)
+	{
+		newVolt = volReal + 4000;
+		if (newVolt < 10000)
+		newVolt = 10000;
+		conSetVoltage(newVolt / 100);
+	}
+	else
+	{
+		if (zWasLimited)
+		{
+			conSetVoltage(zdrGetVoltageConverterLatched() / 100);
+			zWasLimited = FALSE;
+		}
+	}
 
 #ifdef DEBUG_LED
 	if (zLimLimitation)
-		palSetPad(GPIOC,15);
+		palSetPad(GPIOC, 15);
 	else
-		palClearPad(GPIOC,15);
+		palClearPad(GPIOC, 15);
 #endif
 }
 
@@ -101,7 +129,7 @@ void zLimThread(arg_t arg)
  *  - TRUE pokud už proudová pojistka zabírá
  *  - FALSE pokud je proudová pojistka neaktivní
  */
-bool_t zLimIsCurrentLimited(void)
+bool zLimIsCurrentLimited(void)
 {
 	return zLimLimitation;
 }

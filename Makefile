@@ -64,6 +64,7 @@ endif
 # Define project name here
 PROJECT = projekt
 
+# ChibiOS commit fc40a17608c42634dd1bd387608b070d3740f512
 # Imported source files and paths
 CHIBIOS = $(HOME)/ChibiOS
 include board/board.mk

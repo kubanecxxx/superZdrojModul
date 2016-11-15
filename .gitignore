@@ -7,3 +7,4 @@ build
 .cproject
 .project
 .settings
+CMakeLists.txt.user
